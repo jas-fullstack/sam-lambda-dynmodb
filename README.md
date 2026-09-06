@@ -262,6 +262,40 @@ arn:aws:iam::NEW_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com
 
 Then deploy the role only.
 
+## How to get API endpoints
+
+After deploy, SAM prints **Outputs**. `UsersApiUrl` is the users API.
+
+Current **dev** endpoint (this account, `ap-south-1`):
+
+```text
+https://kj3pycssqj.execute-api.ap-south-1.amazonaws.com/dev/users
+```
+
+```bash
+curl https://kj3pycssqj.execute-api.ap-south-1.amazonaws.com/dev/users
+curl https://kj3pycssqj.execute-api.ap-south-1.amazonaws.com/dev/users/1
+```
+
+Read the URL from CloudFormation anytime:
+
+```bash
+aws cloudformation describe-stacks \
+  --stack-name users-api-dev \
+  --region ap-south-1 \
+  --query "Stacks[0].Outputs[?OutputKey=='UsersApiUrl'].OutputValue" \
+  --output text
+```
+
+For other stages, use `users-api-staging` or `users-api-prod`. Those stacks exist only after you deploy that stage.
+
+**Local**
+
+- Express (`npm run local`): `http://127.0.0.1:3000/users`
+- SAM local (`sam local start-api`): `http://127.0.0.1:3000/users`
+
+Routes: `GET /users` and `GET /users/{id}`.
+
 ## API examples
 
 ```bash
