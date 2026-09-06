@@ -1,0 +1,65 @@
+version = 0.1
+
+[default.global.parameters]
+stack_name = "users-api-dev"
+region = "ap-south-1"
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.deploy.parameters]
+region = "ap-south-1"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+parameter_overrides = "Stage=dev"
+
+[default.local_start_api.parameters]
+warm_containers = "EAGER"
+parameter_overrides = "Stage=dev"
+
+[dev.global.parameters]
+stack_name = "users-api-dev"
+region = "ap-south-1"
+
+[dev.build.parameters]
+cached = true
+parallel = true
+
+[dev.deploy.parameters]
+region = "ap-south-1"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+parameter_overrides = "Stage=dev"
+
+[staging.global.parameters]
+stack_name = "users-api-staging"
+region = "ap-south-1"
+
+[staging.build.parameters]
+cached = true
+parallel = true
+
+[staging.deploy.parameters]
+region = "ap-south-1"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+parameter_overrides = "Stage=staging"
+
+[prod.global.parameters]
+stack_name = "users-api-prod"
+region = "ap-south-1"
+
+[prod.build.parameters]
+cached = true
+parallel = true
+
+[prod.deploy.parameters]
+region = "ap-south-1"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+parameter_overrides = "Stage=prod"

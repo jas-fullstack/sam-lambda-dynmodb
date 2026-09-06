@@ -1,0 +1,12 @@
+.aws-sam/
+node_modules/
+*.js
+*.d.ts
+!events/
+.env
+.env.*
+.DS_Store
+*.pem
+credentials
+.idea/
+.vscode/

@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: SAM API with an Express users Lambda
+
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Deployment stage
+
+Mappings:
+  StageConfig:
+    dev:
+      MemorySize: 128
+      Timeout: 10
+    staging:
+      MemorySize: 256
+      Timeout: 10
+    prod:
+      MemorySize: 512
+      Timeout: 15
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        STAGE: !Ref Stage
+
+Resources:
+  UsersApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub users-api-${Stage}
+      StageName: !Ref Stage
+      Cors:
+        AllowMethods: "'GET,POST,PUT,PATCH,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type'"
+        AllowOrigin: "'*'"
+
+  UsersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub users-${Stage}
+      CodeUri: src/users/
+      Handler: app.lambdaHandler
+      Description: !Sub Express users API (${Stage})
+      MemorySize: !FindInMap [StageConfig, !Ref Stage, MemorySize]
+      Timeout: !FindInMap [StageConfig, !Ref Stage, Timeout]
+      Events:
+        Proxy:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UsersApi
+            Path: /{proxy+}
+            Method: ANY
+        Root:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UsersApi
+            Path: /
+            Method: ANY
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2022
+        Sourcemap: true
+        Format: cjs
+        EntryPoints:
+          - app.ts
+
+Outputs:
+  Stage:
+    Description: Deployed stage
+    Value: !Ref Stage
+  UsersApiUrl:
+    Description: Users API base URL
+    Value: !Sub "https://${UsersApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/users"
+  UsersFunctionArn:
+    Description: Users Lambda ARN
+    Value: !GetAtt UsersFunction.Arn
