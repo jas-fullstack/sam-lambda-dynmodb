@@ -9,6 +9,14 @@ Parameters:
     Type: String
     Default: sam-lambda-dynmodb
     Description: GitHub repository name
+  GitHubOrgId:
+    Type: String
+    Default: "13570060"
+    Description: Numeric GitHub user/org id
+  GitHubRepoId:
+    Type: String
+    Default: "1358871601"
+    Description: Numeric GitHub repository id
 
 Resources:
   GitHubOidcProvider:
@@ -35,17 +43,7 @@ Resources:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
               StringLike:
-                token.actions.githubusercontent.com:sub:
-                  - !Sub repo:${GitHubOrg}/${GitHubRepo}:*
-                  - !Sub repo:${GitHubOrg}@*/${GitHubRepo}@*:*
-          - Effect: Allow
-            Principal:
-              Federated: !Ref GitHubOidcProvider
-            Action: sts:AssumeRoleWithWebIdentity
-            Condition:
-              StringEquals:
-                token.actions.githubusercontent.com:aud: sts.amazonaws.com
-                token.actions.githubusercontent.com:repository: !Sub ${GitHubOrg}/${GitHubRepo}
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}@${GitHubOrgId}/${GitHubRepo}@${GitHubRepoId}:*
       Policies:
         - PolicyName: SamDeploy
           PolicyDocument:
