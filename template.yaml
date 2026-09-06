@@ -34,6 +34,18 @@ Globals:
         STAGE: !Ref Stage
 
 Resources:
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub Users-${Stage}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
   UsersApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -53,6 +65,12 @@ Resources:
       Description: !Sub Express users API (${Stage})
       MemorySize: !FindInMap [StageConfig, !Ref Stage, MemorySize]
       Timeout: !FindInMap [StageConfig, !Ref Stage, Timeout]
+      Environment:
+        Variables:
+          USERS_TABLE: !Ref UsersTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
       Events:
         Proxy:
           Type: Api
@@ -77,3 +95,6 @@ Outputs:
   UsersFunctionArn:
     Description: Users Lambda ARN
     Value: !GetAtt UsersFunction.Arn
+  UsersTableName:
+    Description: DynamoDB users table
+    Value: !Ref UsersTable

@@ -55,6 +55,7 @@ Resources:
                   - lambda:*
                   - apigateway:*
                   - s3:*
+                  - dynamodb:*
                   - iam:GetRole
                   - iam:CreateRole
                   - iam:DeleteRole

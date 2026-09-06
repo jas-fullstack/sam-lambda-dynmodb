@@ -4,9 +4,13 @@
   "description": "Users API Lambda",
   "main": "app.js",
   "scripts": {
+    "dynamodb": "docker compose -f ../../docker-compose.yml up -d",
+    "dynamodb:setup": "node scripts/setup-dynamodb.js",
     "local": "node local.js"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.864.0",
+    "@aws-sdk/lib-dynamodb": "^3.864.0",
     "@codegenie/serverless-express": "^4.17.0",
     "cors": "^2.8.5",
     "express": "^4.21.2"

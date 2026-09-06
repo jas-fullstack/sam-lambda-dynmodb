@@ -1,9 +1,21 @@
-const users = [
-  { id: "1", name: "Alice", email: "alice@example.com" },
-  { id: "2", name: "Bob", email: "bob@example.com" },
-  { id: "3", name: "Charlie", email: "charlie@example.com" },
-];
+const { GetCommand, ScanCommand } = require("@aws-sdk/lib-dynamodb");
+const { docClient, tableName } = require("../db/dynamo");
 
-const findUserById = (id) => users.find((user) => user.id === id);
+const listAllUsers = async () => {
+  const result = await docClient.send(
+    new ScanCommand({ TableName: tableName })
+  );
+  return result.Items || [];
+};
 
-module.exports = { users, findUserById };
+const findUserById = async (id) => {
+  const result = await docClient.send(
+    new GetCommand({
+      TableName: tableName,
+      Key: { id },
+    })
+  );
+  return result.Item;
+};
+
+module.exports = { listAllUsers, findUserById };

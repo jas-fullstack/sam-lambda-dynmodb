@@ -81,3 +81,10 @@ jobs:
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --capabilities CAPABILITY_IAM
+
+      - name: Seed Users table
+        run: |
+          TABLE="Users-${SAM_STAGE}"
+          aws dynamodb put-item --table-name "$TABLE" --item '{"id":{"S":"1"},"name":{"S":"Alice"},"email":{"S":"alice@example.com"}}'
+          aws dynamodb put-item --table-name "$TABLE" --item '{"id":{"S":"2"},"name":{"S":"Bob"},"email":{"S":"bob@example.com"}}'
+          aws dynamodb put-item --table-name "$TABLE" --item '{"id":{"S":"3"},"name":{"S":"Charlie"},"email":{"S":"charlie@example.com"}}'

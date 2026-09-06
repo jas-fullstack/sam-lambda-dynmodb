@@ -21,7 +21,7 @@ Client
 4. Express routes it:
    - `GET /users` — list users
    - `GET /users/:id` — one user
-5. User data is in memory in `src/users/data/users.js` (not DynamoDB). Data resets when Lambda is cold-started.
+5. User data is stored in **DynamoDB**. Locally that is DynamoDB Local on port 8000. On AWS, SAM creates table `Users-${Stage}` (`Users-dev`, `Users-staging`, `Users-prod`).
 
 `sam build` packages your `.js` files as they are. There is no TypeScript compile or minify step.
 
@@ -29,13 +29,13 @@ Client
 
 Each stage is a **separate CloudFormation stack** (own API, Lambda, URL).
 
-| Stage     | Stack              | Lambda           | Memory |
-|-----------|--------------------|------------------|--------|
-| `dev`     | `users-api-dev`    | `users-dev`      | 128 MB |
-| `staging` | `users-api-staging`| `users-staging`  | 256 MB |
-| `prod`    | `users-api-prod`   | `users-prod`     | 512 MB |
+| Stage     | Stack              | Lambda           | DynamoDB table   | Memory |
+|-----------|--------------------|------------------|------------------|--------|
+| `dev`     | `users-api-dev`    | `users-dev`      | `Users-dev`      | 128 MB |
+| `staging` | `users-api-staging`| `users-staging`  | `Users-staging`  | 256 MB |
+| `prod`    | `users-api-prod`   | `users-prod`     | `Users-prod`     | 512 MB |
 
-Lambda gets `STAGE=dev|staging|prod`.
+Lambda gets `STAGE` and `USERS_TABLE`. It reads DynamoDB with its IAM role. Do not set `DYNAMODB_ENDPOINT` on AWS.
 
 URL shape:
 
@@ -52,9 +52,12 @@ src/users/
   app.js                      Lambda entry (wraps Express)
   server.js                   Express app
   local.js                    local server (no Docker)
+  db/dynamo.js                DynamoDB client
   routes/users.js             Express routes
   handlers/                   route handlers
-  data/users.js               in-memory users
+  data/users.js               DynamoDB user queries
+  scripts/setup-dynamodb.js   create table + seed
+docker-compose.yml            DynamoDB Local
 infra/github-actions-oidc.yaml  IAM role so GitHub can deploy
 .github/workflows/cicd.yml    CI/CD
 ```
@@ -64,22 +67,36 @@ infra/github-actions-oidc.yaml  IAM role so GitHub can deploy
 - Node.js 22+
 - [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
 - AWS CLI, with an account you can deploy to
-- Docker Desktop (only for `sam local start-api`)
+- Docker Desktop (DynamoDB Local, and `sam local start-api`)
 
 ## Run locally
 
-### Option A — Express only (no Docker, no SAM)
+### Option A — Express + DynamoDB Local
+
+Start DynamoDB, create the `Users` table, then run the API:
 
 ```bash
 cd src/users
 npm install
+npm run dynamodb
+npm run dynamodb:setup
 npm run local
 ```
 
 ```bash
 curl http://127.0.0.1:3000/users
 curl http://127.0.0.1:3000/users/1
+aws dynamodb list-tables --endpoint-url http://127.0.0.1:8000
 ```
+
+Open in the browser:
+
+- API: http://127.0.0.1:3000/users
+- DynamoDB Admin UI: http://127.0.0.1:8001
+
+`http://127.0.0.1:8000` is the DynamoDB API, not a webpage — a browser will show `ERR_INVALID_RESPONSE`. Use port **3000** for the API or **8001** for the table UI.
+
+`npm run local` sets `DYNAMODB_ENDPOINT=http://127.0.0.1:8000` so the client talks to DynamoDB Local. Dummy keys `local` / `local` are enough. Deployed Lambda does not set that env var, so it uses real DynamoDB + IAM.
 
 ### Option B — SAM local API (needs Docker running)
 
@@ -134,9 +151,12 @@ SAM also creates `aws-sam-cli-managed-default` (an S3 bucket for upload artifact
 
 - API Gateway REST API + stage
 - Lambda function
-- IAM role for the Lambda
+- DynamoDB table `Users-${Stage}`
+- IAM role for the Lambda (includes DynamoDB read/write on that table)
 - Lambda permissions so API Gateway can invoke it
 - CloudFormation stack
+
+CI seeds Alice, Bob, and Charlie after each deploy (idempotent `put-item`).
 
 ## GitHub Actions CI/CD
 

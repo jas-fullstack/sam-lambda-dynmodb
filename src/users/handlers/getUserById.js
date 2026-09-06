@@ -1,15 +1,19 @@
 const { findUserById } = require("../data/users");
 
-const getUserById = (req, res) => {
-  const { id } = req.params;
-  const user = findUserById(id);
+const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await findUserById(id);
 
-  if (!user) {
-    res.status(404).json({ message: `User ${id} not found` });
-    return;
+    if (!user) {
+      res.status(404).json({ message: `User ${id} not found` });
+      return;
+    }
+
+    res.json({ user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  res.json({ user });
 };
 
 module.exports = { getUserById };
