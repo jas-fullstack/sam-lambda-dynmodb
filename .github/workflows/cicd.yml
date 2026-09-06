@@ -26,9 +26,9 @@ jobs:
     name: Build and validate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -59,9 +59,9 @@ jobs:
     env:
       SAM_STAGE: ${{ github.event_name == 'workflow_dispatch' && inputs.stage || (github.ref_name == 'main' && 'dev' || github.ref_name) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -78,10 +78,11 @@ jobs:
           use-installer: true
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          audience: sts.amazonaws.com
 
       - name: SAM build
         run: sam build

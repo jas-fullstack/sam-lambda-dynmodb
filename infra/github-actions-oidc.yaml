@@ -7,7 +7,7 @@ Parameters:
     Description: GitHub username or organization
   GitHubRepo:
     Type: String
-    Default: aws-lambda-sam
+    Default: sam-lambda-dynmodb
     Description: GitHub repository name
 
 Resources:
