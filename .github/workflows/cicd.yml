@@ -2,7 +2,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [main, staging, prod]
+    branches: [main, dev, staging, prod]
   pull_request:
   workflow_dispatch:
     inputs:
@@ -53,9 +53,8 @@ jobs:
   deploy:
     name: Deploy
     needs: build
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'staging' || github.ref_name == 'prod'))
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.stage || (github.ref_name == 'main' && 'dev' || github.ref_name) }}
     env:
       SAM_STAGE: ${{ github.event_name == 'workflow_dispatch' && inputs.stage || (github.ref_name == 'main' && 'dev' || github.ref_name) }}
     steps:

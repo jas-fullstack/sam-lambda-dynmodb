@@ -146,6 +146,7 @@ Workflow: `.github/workflows/cicd.yml`
 | Event                         | What happens          |
 |-------------------------------|-----------------------|
 | Pull request                  | Build + validate only |
+| Push to `dev`                 | Deploy **dev**        |
 | Push to `main`                | Deploy **dev**        |
 | Push to `staging`             | Deploy **staging**    |
 | Push to `prod`                | Deploy **prod**       |
@@ -299,4 +300,4 @@ aws cloudformation delete-stack --stack-name github-actions-sam-oidc
 aws cloudformation delete-stack --stack-name aws-sam-cli-managed-default
 ```
 
-The managed stack owns the SAM upload bucket. Delete it only if you no longer deploy with SAM in that account.
+The managed stack owns the SAM upload bucket. Delete it only if you no longer deploy with SAM in that account.  
