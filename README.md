@@ -212,6 +212,10 @@ aws cloudformation deploy \
 
 Use the same region you put in `samconfig.toml`.
 
+New GitHub repos (2026+) send an immutable OIDC `sub` like
+`repo:user@123/repo@456:ref:refs/heads/main`. The template already allows that
+pattern. If assume-role still fails, compare CloudTrail `userName` to the role trust policy.
+
 If that account **already** has a GitHub OIDC provider, this stack may fail on `GitHubOidcProvider`. Then create only the IAM role, or delete the leftover provider and retry.
 
 Read the role ARN:
