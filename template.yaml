@@ -66,15 +66,6 @@ Resources:
             RestApiId: !Ref UsersApi
             Path: /
             Method: ANY
-    Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: es2022
-        Sourcemap: true
-        Format: cjs
-        EntryPoints:
-          - app.ts
 
 Outputs:
   Stage:

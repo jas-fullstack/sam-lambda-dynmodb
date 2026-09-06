@@ -1,7 +1,6 @@
-import { Request, Response } from "express";
-import { findUserById } from "../data/users";
+const { findUserById } = require("../data/users");
 
-export const getUserById = (req: Request, res: Response): void => {
+const getUserById = (req, res) => {
   const { id } = req.params;
   const user = findUserById(id);
 
@@ -12,3 +11,5 @@ export const getUserById = (req: Request, res: Response): void => {
 
   res.json({ user });
 };
+
+module.exports = { getUserById };

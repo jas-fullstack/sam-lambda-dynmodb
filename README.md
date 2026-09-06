@@ -1,8 +1,8 @@
 # SAM Users API
 
-TypeScript users API on AWS Lambda, using AWS SAM, Express, and GitHub Actions.
+JavaScript users API on AWS Lambda, using AWS SAM, Express, and GitHub Actions.
 
-You write TypeScript. `sam build` compiles and minifies it to JavaScript. Lambda runs that JS bundle.
+You write JavaScript. `sam build` uploads that same source (plus `node_modules`) to Lambda, so the code in the Lambda console matches the repo.
 
 Repo: [jas-fullstack/sam-lambda-dynmodb](https://github.com/jas-fullstack/sam-lambda-dynmodb)
 
@@ -21,9 +21,9 @@ Client
 4. Express routes it:
    - `GET /users` — list users
    - `GET /users/:id` — one user
-5. User data is in memory in `src/users/data/users.ts` (not DynamoDB). Data resets when Lambda is cold-started.
+5. User data is in memory in `src/users/data/users.js` (not DynamoDB). Data resets when Lambda is cold-started.
 
-`sam build` uses esbuild (`Minify: true` in `template.yaml`). AWS does not run `.ts` files. The uploaded artifact is minified `app.js`.
+`sam build` packages your `.js` files as they are. There is no TypeScript compile or minify step.
 
 ### Stages
 
@@ -49,12 +49,12 @@ https://{api-id}.execute-api.{region}.amazonaws.com/{stage}/users
 template.yaml                 SAM / CloudFormation
 samconfig.toml                deploy settings (region, stacks)
 src/users/
-  app.ts                      Lambda entry (wraps Express)
-  server.ts                   Express app
-  local.ts                    local server (no Docker)
-  routes/users.ts             Express routes
+  app.js                      Lambda entry (wraps Express)
+  server.js                   Express app
+  local.js                    local server (no Docker)
+  routes/users.js             Express routes
   handlers/                   route handlers
-  data/users.ts               in-memory users
+  data/users.js               in-memory users
 infra/github-actions-oidc.yaml  IAM role so GitHub can deploy
 .github/workflows/cicd.yml    CI/CD
 ```
@@ -65,7 +65,6 @@ infra/github-actions-oidc.yaml  IAM role so GitHub can deploy
 - [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
 - AWS CLI, with an account you can deploy to
 - Docker Desktop (only for `sam local start-api`)
-- esbuild (installed with `npm install` in `src/users`)
 
 ## Run locally
 
@@ -319,7 +318,7 @@ Sample body:
 ## Add another route
 
 1. Add a handler under `src/users/handlers/`.
-2. Register it in `src/users/routes/users.ts`.
+2. Register it in `src/users/routes/users.js`.
 3. Rebuild (`sam build`) or just use `npm run local`.
 
 You do not add a new API Gateway event for each Express path. The proxy `/{proxy+}` forwards everything to Express.

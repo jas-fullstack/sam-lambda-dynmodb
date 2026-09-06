@@ -1,8 +1,8 @@
-import cors from "cors";
-import express from "express";
-import { usersRouter } from "./routes/users";
+const cors = require("cors");
+const express = require("express");
+const { usersRouter } = require("./routes/users");
 
-export const createApp = () => {
+const createApp = () => {
   const app = express();
 
   app.use(cors());
@@ -15,3 +15,5 @@ export const createApp = () => {
 
   return app;
 };
+
+module.exports = { createApp };

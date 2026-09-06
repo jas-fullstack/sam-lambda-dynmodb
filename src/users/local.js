@@ -1,4 +1,4 @@
-import { createApp } from "./server";
+const { createApp } = require("./server");
 
 const port = Number(process.env.PORT) || 3000;
 
